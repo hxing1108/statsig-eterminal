@@ -3,268 +3,124 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TechGear - Statsig Demo Store</title>
-    <script src="https://cdn.jsdelivr.net/npm/@statsig/js-client@1/build/statsig-js-client+session-replay+web-analytics.min.js?apikey=client-iP1C5UeGqpTQsrLm851hJDdmBXr70bNayiqkKTzla75"></script>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        line-height: 1.6;
-        color: #333;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-      }
-      header {
-        background-color: #f4f4f4;
-        padding: 1rem;
-        text-align: center;
-      }
-      nav {
-        background-color: #333;
-        color: #fff;
-        padding: 0.5rem;
-      }
-      nav ul {
-        list-style-type: none;
-        padding: 0;
-      }
-      nav ul li {
-        display: inline;
-        margin-right: 10px;
-      }
-      nav ul li a {
-        color: #fff;
-        text-decoration: none;
-      }
-      .cta-button {
-        display: inline-block;
-        background-color: #4caf50;
-        color: white;
-        padding: 10px 20px;
-        text-align: center;
-        text-decoration: none;
-        font-size: 16px;
-        margin: 4px 2px;
-        cursor: pointer;
-        border-radius: 5px;
-      }
-      .product-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 20px;
-        padding: 20px 0;
-      }
-      .product-card {
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        padding: 10px;
-        text-align: center;
-      }
-      .product-card img {
-        max-width: 100%;
-        height: auto;
-      }
-      footer {
-        background-color: #333;
-        color: #fff;
-        text-align: center;
-        padding: 1rem;
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-      }
-    </style>
+    <link rel="stylesheet" href="stylesheet.css" />
+    <title>Statsig Feature Test</title>
+    <!-- Lade die Statsig JavaScript-Bibliothek -->
+    <script>
+      var scrpt = document.createElement('script');
+      scrpt.src =
+        'https://cdn.jsdelivr.net/npm/statsig-js/build/statsig-prod-web-sdk.min.js';
+      document.getElementsByTagName('head')[0].appendChild(scrpt);
+    </script>
   </head>
   <body>
-    <header>
-      <h1>TechGear</h1>
-      <p>Your One-Stop Shop for Tech Gadgets</p>
-    </header>
+    <h1>Welche Produktversion kann ich verwenden?</h1>
+    <p>
+      wir prüfen dein browser type, in welche land du gerade bist, wann du
+      produkt anfragen , für dich ein richitge Produkt version zu geben!
+    </p>
 
-    <nav>
-      <ul>
-        <li><a href="#" class="nav-link" data-page="home">Home</a></li>
-        <li><a href="#" class="nav-link" data-page="products">Products</a></li>
-        <li><a href="#" class="nav-link" data-page="about">About</a></li>
-        <li><a href="#" class="nav-link" data-page="contact">Contact</a></li>
-      </ul>
-    </nav>
+    <!-- Button für Browser Check -->
+    <button id="checkBrowserButton">Check my Browser</button>
+    <div id="browserResult" class="check-result">Result: Not Checked</div>
 
-    <main>
-      <section id="hero">
-        <h2>Welcome to TechGear</h2>
-        <p>Discover the latest in tech innovation!</p>
-        <a href="#" id="ctaButton" class="cta-button">Shop Now</a>
-      </section>
+    <!-- Button für Ländercode Check -->
+    <button id="checkCountryButton">Check my Country</button>
+    <div id="countryResult" class="check-result">Result: Not Checked</div>
 
-      <section id="featured-products">
-        <h2>Featured Products</h2>
-        <div class="product-grid">
-          <div class="product-card" id="product1">
-            <img src="https://via.placeholder.com/150" alt="Smart Watch" />
-            <h3>Smart Watch</h3>
-            <p>$199.99</p>
-            <button class="add-to-cart">Add to Cart</button>
-          </div>
-          <div class="product-card" id="product2">
-            <img src="https://via.placeholder.com/150" alt="Wireless Earbuds" />
-            <h3>Wireless Earbuds</h3>
-            <p>$149.99</p>
-            <button class="add-to-cart">Add to Cart</button>
-          </div>
-          <div class="product-card" id="product3">
-            <img src="https://via.placeholder.com/150" alt="Smartphone" />
-            <h3>Smartphone</h3>
-            <p>$699.99</p>
-            <button class="add-to-cart">Add to Cart</button>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      <p>&copy; 2024 TechGear. All rights reserved.</p>
-    </footer>
+    <!-- Button für Early Bird Check -->
+    <button id="checkEarlyBirdButton">Check am I a Early Bird?</button>
+    <div id="earlyBirdResult" class="check-result">Result: Not Checked</div>
 
     <script>
-  // Function to detect the browser name
-function getBrowserName() {
-    const userAgent = navigator.userAgent;
+      document.addEventListener('DOMContentLoaded', async function () {
+        scrpt.onload = async function () {
+          try {
+            const apiKey = 'client-iP1C5UeGqpTQsrLm851hJDdmBXr70bNayiqkKTzla75';
 
-    if (userAgent.includes('Chrome') && !userAgent.includes('Edg') && !userAgent.includes('OPR')) {
-        return 'Chrome';
-    } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
-        return 'Safari';
-    } else if (userAgent.includes('Firefox')) {
-        return 'Firefox';
-    } else if (userAgent.includes('Edg')) {
-        return 'Edge';
-    } else if (userAgent.includes('OPR')) {
-        return 'Opera';
-    } else {
-        return 'Unknown';
-    }
-}
+            // Benutzerdaten initialisieren
+            const userData = {
+              userID: '123',
+              browser_name: navigator.userAgent,
+              country: 'DE',
+            };
 
-// Function to initialize Statsig and setup feature flags
-async function initializeStatsig() {
-    try {
-        // Detect the browser name
-        const browserName = getBrowserName();
-        console.log('Detected Browser:', browserName); // Debugging
+            console.log('User Data:', userData);
 
-        // Initialize Statsig with user attributes including browser name
-        await Statsig.initialize(
-            'client-iP1C5UeGqpTQsrLm851hJDdmBXr70bNayiqkKTzla75',
-            {
-                userID: 'testUser123', // Unique ID for testing
-                browserName: browserName, // Pass the detected browser name
-            }
-        );
-        console.log(`Statsig initialized successfully for ${browserName}`);
+            await statsig
+              .initialize(apiKey, { user: userData })
+              .then(() => {
+                console.log('Statsig erfolgreich initialisiert.');
+              })
+              .catch((error) => {
+                console.error('Fehler bei der Statsig-Initialisierung:', error);
+                throw error;
+              });
+            // Event-Listener für den Browser-Button
+            document
+              .getElementById('checkBrowserButton')
+              .addEventListener('click', async function () {
+                try {
+                  const browserGate = await statsig.checkGate(
+                    'browser_name_chrome'
+                  );
+                  console.log('Browser Gate Result:', browserGate);
+                  document.getElementById('browserResult').innerText =
+                    browserGate
+                      ? 'Herzlichen Glückwunsch! Du bist ein deutscher Benutzer, du kannst zuerst unsere Testversion ausprobieren!'
+                      : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
+                } catch (gateError) {
+                  console.error(
+                    'Feature-Gate-Check für Browser fehlgeschlagen:',
+                    gateError
+                  );
+                }
+              });
 
-        // Setup feature flags after initialization
-        await setupFeatureFlags();
-    } catch (error) {
-        console.error('Statsig initialization failed:', error);
-    }
-}
+            // Event-Listener für den Ländercode-Button
+            document
+              .getElementById('checkCountryButton')
+              .addEventListener('click', async function () {
+                try {
+                  const countryGate = await statsig.checkGate('country_de');
+                  console.log('Country Gate Result:', countryGate);
+                  document.getElementById('countryResult').innerText =
+                    countryGate
+                      ? 'Herzlichen Glückwunsch! Du bist ein deutscher Benutzer, du kannst zuerst unsere Testversion ausprobieren!'
+                      : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
+                } catch (gateError) {
+                  console.error(
+                    'Feature-Gate-Check für Land fehlgeschlagen:',
+                    gateError
+                  );
+                }
+              });
 
-// Function to setup feature flags
-async function setupFeatureFlags() {
-    try {
-        // Check if the new feature is enabled
-        const isNewFeatureEnabled = await Statsig.checkGate('new_feature_launch');
-
-        if (isNewFeatureEnabled) {
-            // New feature code
-            console.log('New feature is enabled for this browser');
-            document.getElementById('ctaButton').textContent = 'Get the Latest Tech!';
-            document.getElementById('ctaButton').style.backgroundColor = '#FF5722'; // Change color
-        } else {
-            // Existing feature code
-            console.log('Existing feature is running for this browser');
-            document.getElementById('ctaButton').textContent = 'Shop Now';
-        }
-    } catch (error) {
-        console.error('Feature flag setup failed:', error);
-    }
-}
-
-// Function to log Statsig events
-function logStatsigEvent(eventName, eventData = {}) {
-    if (Statsig && typeof Statsig.logEvent === 'function') {
-        Statsig.logEvent(eventName, eventData);
-        console.log(`Event logged: ${eventName}`, eventData);
-    } else {
-        console.error('Statsig.logEvent is not available. Check initialization.');
-    }
-}
-
-// DOMContentLoaded event listener for page interactions
-document.addEventListener('DOMContentLoaded', () => {
-    initializeStatsig().then(() => {
-        logStatsigEvent('PageView', { pageName: 'Home' });
-
-        // Navigation tracking
-        document.querySelectorAll('.nav-link').forEach((link) => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                logStatsigEvent('NavClicked', { page: e.target.dataset.page });
-            });
-        });
-
-        // Product view tracking
-        document.querySelectorAll('.product-card').forEach((product) => {
-            product.addEventListener('click', () => {
-                logStatsigEvent('ProductViewed', { productId: product.id });
-            });
-        });
-
-        // Add to cart tracking
-        document.querySelectorAll('.add-to-cart').forEach((button) => {
-            button.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const productName = e.target
-                    .closest('.product-card')
-                    .querySelector('h3').textContent;
-                logStatsigEvent('AddToCart', { product: productName });
-            });
-        });
-
-        // CTA button tracking
-        document.getElementById('ctaButton').addEventListener('click', (e) => {
-            e.preventDefault();
-            logStatsigEvent('CTAClicked', { buttonText: e.target.textContent });
-        });
-
-        // Scroll depth tracking
-        let maxScrollDepth = 0;
-        window.addEventListener('scroll', () => {
-            const scrollDepth =
-                (window.scrollY /
-                    (document.documentElement.scrollHeight - window.innerHeight)) *
-                100;
-            if (scrollDepth > maxScrollDepth) {
-                maxScrollDepth = scrollDepth;
-                if (maxScrollDepth >= 25 && maxScrollDepth < 50)
-                    logStatsigEvent('ScrollDepth', { depth: '25%' });
-                else if (maxScrollDepth >= 50 && maxScrollDepth < 75)
-                    logStatsigEvent('ScrollDepth', { depth: '50%' });
-                else if (maxScrollDepth >= 75)
-                    logStatsigEvent('ScrollDepth', { depth: '75%' });
-            }
-        });
-
-        // Time on page tracking
-        let startTime = Date.now();
-        window.addEventListener('beforeunload', () => {
-            const timeSpent = (Date.now() - startTime) / 1000;
-            logStatsigEvent('TimeOnPage', { seconds: timeSpent });
-        });
-    });
-});
-
+            // Event-Listener für den Early Bird-Button
+            document
+              .getElementById('checkEarlyBirdButton')
+              .addEventListener('click', async function () {
+                try {
+                  const earlyBirdGate = await statsig.checkGate(
+                    'before_august_4'
+                  );
+                  console.log('Early Bird Gate Result:', earlyBirdGate);
+                  document.getElementById('earlyBirdResult').innerText =
+                    earlyBirdGate
+                      ? 'Herzlichen Glückwunsch! Du bist ein Early Bird, du kannst zuerst unsere Testversion ausprobieren!'
+                      : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
+                } catch (gateError) {
+                  console.error(
+                    'Feature-Gate-Check für Early Bird fehlgeschlagen:',
+                    gateError
+                  );
+                }
+              });
+          } catch (error) {
+            console.error('Statsig-Initialisierung fehlgeschlagen:', error);
+          }
+        };
+      });
     </script>
   </body>
 </html>
