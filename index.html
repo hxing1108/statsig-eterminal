@@ -16,8 +16,8 @@
   <body>
     <h1>Welche Produktversion kann ich verwenden?</h1>
     <p>
-      wir prüfen dein browser type, in welche land du gerade bist, wann du
-      produkt anfragen , für dich ein richitge Produkt version zu geben!
+      Wir prüfen deinen Browsertyp, in welchem Land du gerade bist, und wann du
+      das Produkt anfragst, um dir die richtige Produktversion zu geben!
     </p>
 
     <!-- Button für Browser Check -->
@@ -29,26 +29,43 @@
     <div id="countryResult" class="check-result">Result: Not Checked</div>
 
     <!-- Button für Early Bird Check -->
-    <button id="checkEarlyBirdButton">Check am I a Early Bird?</button>
+    <button id="checkEarlyBirdButton">Check am I an Early Bird?</button>
     <div id="earlyBirdResult" class="check-result">Result: Not Checked</div>
 
     <script>
-      document.addEventListener('DOMContentLoaded', async function () {
+      document.addEventListener('DOMContentLoaded', function () {
         scrpt.onload = async function () {
           try {
             const apiKey = 'client-iP1C5UeGqpTQsrLm851hJDdmBXr70bNayiqkKTzla75';
 
-            // Benutzerdaten initialisieren
+            // Funktion zur Bestimmung des Browsernamens
+            function getBrowserName() {
+              const userAgent = navigator.userAgent;
+              if (userAgent.includes('Chrome') && !userAgent.includes('Edg') && !userAgent.includes('OPR')) {
+                return 'Chrome';
+              } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+                return 'Safari';
+              } else if (userAgent.includes('Firefox')) {
+                return 'Firefox';
+              } else if (userAgent.includes('Edg')) {
+                return 'Edge';
+              } else if (userAgent.includes('OPR')) {
+                return 'Opera';
+              } else {
+                return 'Unknown';
+              }
+            }
+
             const userData = {
               userID: '3cK58mzYUTp2TAvfBvZWqu',
-              browser_name: navigator.userAgent,
+              browser_name: getBrowserName(), // Verwende die funktion, um den Browsernamen zu bestimmen
               country: 'DE',
             };
 
             console.log('User Data:', userData);
 
-            await statsig
-              .initialize(apiKey, { user: userData })
+            // Statsig initialisieren
+            await Statsig.initialize(apiKey, { user: userData })
               .then(() => {
                 console.log('Statsig erfolgreich initialisiert.');
               })
@@ -56,66 +73,45 @@
                 console.error('Fehler bei der Statsig-Initialisierung:', error);
                 throw error;
               });
+
             // Event-Listener für den Browser-Button
-            document
-              .getElementById('checkBrowserButton')
-              .addEventListener('click', async function () {
-                try {
-                  const browserGate = await statsig.checkGate(
-                    'browser_name_chrome'
-                  );
-                  console.log('Browser Gate Result:', browserGate);
-                  document.getElementById('browserResult').innerText =
-                    browserGate
-                      ? 'Herzlichen Glückwunsch! Du bist ein deutscher Benutzer, du kannst zuerst unsere Testversion ausprobieren!'
-                      : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
-                } catch (gateError) {
-                  console.error(
-                    'Feature-Gate-Check für Browser fehlgeschlagen:',
-                    gateError
-                  );
-                }
-              });
+            document.getElementById('checkBrowserButton').addEventListener('click', async function () {
+              try {
+                const browserGate = await Statsig.checkGate('browser_name_chrome');
+                console.log('Browser Gate Result:', browserGate);
+                document.getElementById('browserResult').innerText = browserGate
+                  ? 'Herzlichen Glückwunsch! Du bist ein deutscher Benutzer, du kannst zuerst unsere Testversion ausprobieren!'
+                  : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
+              } catch (gateError) {
+                console.error('Feature-Gate-Check für Browser fehlgeschlagen:', gateError);
+              }
+            });
 
             // Event-Listener für den Ländercode-Button
-            document
-              .getElementById('checkCountryButton')
-              .addEventListener('click', async function () {
-                try {
-                  const countryGate = await statsig.checkGate('country_de');
-                  console.log('Country Gate Result:', countryGate);
-                  document.getElementById('countryResult').innerText =
-                    countryGate
-                      ? 'Herzlichen Glückwunsch! Du bist ein deutscher Benutzer, du kannst zuerst unsere Testversion ausprobieren!'
-                      : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
-                } catch (gateError) {
-                  console.error(
-                    'Feature-Gate-Check für Land fehlgeschlagen:',
-                    gateError
-                  );
-                }
-              });
+            document.getElementById('checkCountryButton').addEventListener('click', async function () {
+              try {
+                const countryGate = await Statsig.checkGate('country_de');
+                console.log('Country Gate Result:', countryGate);
+                document.getElementById('countryResult').innerText = countryGate
+                  ? 'Herzlichen Glückwunsch! Du bist ein deutscher Benutzer, du kannst zuerst unsere Testversion ausprobieren!'
+                  : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
+              } catch (gateError) {
+                console.error('Feature-Gate-Check für Land fehlgeschlagen:', gateError);
+              }
+            });
 
             // Event-Listener für den Early Bird-Button
-            document
-              .getElementById('checkEarlyBirdButton')
-              .addEventListener('click', async function () {
-                try {
-                  const earlyBirdGate = await statsig.checkGate(
-                    'before_august_4'
-                  );
-                  console.log('Early Bird Gate Result:', earlyBirdGate);
-                  document.getElementById('earlyBirdResult').innerText =
-                    earlyBirdGate
-                      ? 'Herzlichen Glückwunsch! Du bist ein Early Bird, du kannst zuerst unsere Testversion ausprobieren!'
-                      : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
-                } catch (gateError) {
-                  console.error(
-                    'Feature-Gate-Check für Early Bird fehlgeschlagen:',
-                    gateError
-                  );
-                }
-              });
+            document.getElementById('checkEarlyBirdButton').addEventListener('click', async function () {
+              try {
+                const earlyBirdGate = await Statsig.checkGate('before_august_4');
+                console.log('Early Bird Gate Result:', earlyBirdGate);
+                document.getElementById('earlyBirdResult').innerText = earlyBirdGate
+                  ? 'Herzlichen Glückwunsch! Du bist ein Early Bird, du kannst zuerst unsere Testversion ausprobieren!'
+                  : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
+              } catch (gateError) {
+                console.error('Feature-Gate-Check für Early Bird fehlgeschlagen:', gateError);
+              }
+            });
           } catch (error) {
             console.error('Statsig-Initialisierung fehlgeschlagen:', error);
           }
