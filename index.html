@@ -1,122 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="stylesheet.css" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statsig Feature Test</title>
-    <!-- Lade die Statsig JavaScript-Bibliothek -->
-    <script>
-      var scrpt = document.createElement('script');
-      scrpt.src =
-        'https://cdn.jsdelivr.net/npm/statsig-js/build/statsig-prod-web-sdk.min.js';
-      document.getElementsByTagName('head')[0].appendChild(scrpt);
-    </script>
-  </head>
-  <body>
-    <h1>Welche Produktversion kann ich verwenden?</h1>
-    <p>
-      Wir prüfen deinen Browsertyp, in welchem Land du gerade bist, und wann du
-      das Produkt anfragst, um dir die richtige Produktversion zu geben!
-    </p>
-
-    <!-- Button für Browser Check -->
-    <button id="checkBrowserButton">Check my Browser</button>
-    <div id="browserResult" class="check-result">Result: Not Checked</div>
-
-    <!-- Button für Ländercode Check -->
-    <button id="checkCountryButton">Check my Country</button>
-    <div id="countryResult" class="check-result">Result: Not Checked</div>
-
-    <!-- Button für Early Bird Check -->
-    <button id="checkEarlyBirdButton">Check am I an Early Bird?</button>
-    <div id="earlyBirdResult" class="check-result">Result: Not Checked</div>
+    <script src="https://cdn.jsdelivr.net/npm/@statsig/js-client@1/build/statsig-js-client.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+    </style>
+</head>
+<body>
+    <h1>TechGear - Statsig Demo Store</h1>
+    <p>Welcome to the Statsig Feature Test</p>
+    <button id="checkGateButton">Check Gate</button>
+    <div id="result">Result: Not Checked</div>
 
     <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        scrpt.onload = async function () {
+      function getBrowserName() {
+          const userAgent = navigator.userAgent;
+
+          if (userAgent.includes('Chrome') && !userAgent.includes('Edg') && !userAgent.includes('OPR')) {
+              return 'Chrome';
+          } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+              return 'Safari';
+          } else if (userAgent.includes('Firefox')) {
+              return 'Firefox';
+          } else if (userAgent.includes('Edg')) {
+              return 'Edge';
+          } else if (userAgent.includes('OPR')) {
+              return 'Opera';
+          } else {
+              return 'Unknown';
+          }
+      }
+
+      async function initializeStatsig() {
           try {
-            const apiKey = 'client-iP1C5UeGqpTQsrLm851hJDdmBXr70bNayiqkKTzla75';
+              const userID = '3cK58mzYUTp2TAvfbVZWq'; // Use the actual user ID
+              const browserName = getBrowserName();
+              const apiKey = 'client-iP1C5UeGqpTQsrLm851hJDdmBXr70bNayiqkKTzla75';
 
-            // Funktion zur Bestimmung des Browsernamens
-            function getBrowserName() {
-              const userAgent = navigator.userAgent;
-              if (userAgent.includes('Chrome') && !userAgent.includes('Edg') && !userAgent.includes('OPR')) {
-                return 'Chrome';
-              } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
-                return 'Safari';
-              } else if (userAgent.includes('Firefox')) {
-                return 'Firefox';
-              } else if (userAgent.includes('Edg')) {
-                return 'Edge';
-              } else if (userAgent.includes('OPR')) {
-                return 'Opera';
-              } else {
-                return 'Unknown';
-              }
-            }
-
-            const userData = {
-              userID: '3cK58mzYUTp2TAvfBvZWqu',
-              browser_name: getBrowserName(), // Verwende die funktion, um den Browsernamen zu bestimmen
-              country: 'DE',
-            };
-
-            console.log('User Data:', userData);
-
-            // Statsig initialisieren
-            await Statsig.initialize(apiKey, { user: userData })
-              .then(() => {
-                console.log('Statsig erfolgreich initialisiert.');
-              })
-              .catch((error) => {
-                console.error('Fehler bei der Statsig-Initialisierung:', error);
-                throw error;
+              // Initialize Statsig with user attributes including browser name
+              await Statsig.initialize(apiKey, { 
+                  userID: userID, 
+                  browserName: browserName 
               });
 
-            // Event-Listener für den Browser-Button
-            document.getElementById('checkBrowserButton').addEventListener('click', async function () {
-              try {
-                const browserGate = await Statsig.checkGate('browser_name_chrome');
-                console.log('Browser Gate Result:', browserGate);
-                document.getElementById('browserResult').innerText = browserGate
-                  ? 'Herzlichen Glückwunsch! Du bist ein deutscher Benutzer, du kannst zuerst unsere Testversion ausprobieren!'
-                  : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
-              } catch (gateError) {
-                console.error('Feature-Gate-Check für Browser fehlgeschlagen:', gateError);
-              }
-            });
+              console.log('Statsig initialized:', browserName);
 
-            // Event-Listener für den Ländercode-Button
-            document.getElementById('checkCountryButton').addEventListener('click', async function () {
-              try {
-                const countryGate = await Statsig.checkGate('country_de');
-                console.log('Country Gate Result:', countryGate);
-                document.getElementById('countryResult').innerText = countryGate
-                  ? 'Herzlichen Glückwunsch! Du bist ein deutscher Benutzer, du kannst zuerst unsere Testversion ausprobieren!'
-                  : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
-              } catch (gateError) {
-                console.error('Feature-Gate-Check für Land fehlgeschlagen:', gateError);
-              }
-            });
-
-            // Event-Listener für den Early Bird-Button
-            document.getElementById('checkEarlyBirdButton').addEventListener('click', async function () {
-              try {
-                const earlyBirdGate = await Statsig.checkGate('before_august_4');
-                console.log('Early Bird Gate Result:', earlyBirdGate);
-                document.getElementById('earlyBirdResult').innerText = earlyBirdGate
-                  ? 'Herzlichen Glückwunsch! Du bist ein Early Bird, du kannst zuerst unsere Testversion ausprobieren!'
-                  : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
-              } catch (gateError) {
-                console.error('Feature-Gate-Check für Early Bird fehlgeschlagen:', gateError);
-              }
-            });
+              // Check the feature gate
+              document.getElementById('checkGateButton').addEventListener('click', async function () {
+                  const status = await Statsig.checkGate('new_feature_launch');
+                  document.getElementById('result').innerText = (status ? 'Passed' : 'Failed');
+                  console.log('Feature gate status:', status);
+              });
           } catch (error) {
-            console.error('Statsig-Initialisierung fehlgeschlagen:', error);
+              console.error('Statsig initialization failed:', error);
           }
-        };
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+          initializeStatsig();
       });
     </script>
-  </body>
+</body>
 </html>
