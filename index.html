@@ -5,19 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="stylesheet.css" />
     <title>Statsig Feature Test</title>
-    <!-- Lade die Statsig JavaScript-Bibliothek -->
-    <script>
-      var scrpt = document.createElement('script');
-      scrpt.src =
-        'https://cdn.jsdelivr.net/npm/statsig-js/build/statsig-prod-web-sdk.min.js';
-      document.getElementsByTagName('head')[0].appendChild(scrpt);
-    </script>
+    <!-- Directly include the Statsig SDK script -->
+    <script src="https://cdn.jsdelivr.net/npm/statsig-js/build/statsig-prod-web-sdk.min.js"></script>
   </head>
   <body>
     <h1>Welche Produktversion kann ich verwenden?</h1>
     <p>
-      wir prüfen dein browser type, in welche land du gerade bist, wann du
-      produkt anfragen , für dich ein richitge Produkt version zu geben!
+      Wir prüfen deinen Browsertyp, in welchem Land du gerade bist, und wann du
+      das Produkt anfragst, um dir die richtige Produktversion zu geben!
     </p>
 
     <!-- Button für Browser Check -->
@@ -33,47 +28,40 @@
     <div id="earlyBirdResult" class="check-result">Result: Not Checked</div>
 
     <script>
-      document.addEventListener('DOMContentLoaded', async function () {
-        scrpt.onload = async function () {
-          try {
-            const apiKey = 'client-iP1C5UeGqpTQsrLm851hJDdmBXr70bNayiqkKTzla75';
+      // Function to get the Statsig API Key
+      function getStatsigAPIKey() {
+        return 'client-iP1C5UeGqpTQsrLm851hJDdmBXr70bNayiqkKTzla75'; // Replace with your actual API key
+      }
 
-            // Benutzerdaten initialisieren
-            const userData = {
-              userID: '123',
-              browser_name: navigator.userAgent,
-              country: 'DE',
-            };
+      // Initialize Statsig once the window is loaded
+      window.onload = function () {
+        const user = {
+          userID: '3cK58mzYUTp2TAvfBvZWqu',
+          custom: {
+            browser_name: navigator.userAgent,
+            country: 'DE',
+          }
+        };
 
-            console.log('User Data:', userData);
+        statsig
+          .initialize(getStatsigAPIKey(), user) // Provide user object directly
+          .then(() => {
+            console.log('Statsig SDK initialized');
+            // Log an event to Statsig with user data
+            statsig.logEvent('user_initialized', user);
 
-            await statsig
-              .initialize(apiKey, { user: userData })
-              .then(() => {
-                console.log('Statsig erfolgreich initialisiert.');
-              })
-              .catch((error) => {
-                console.error('Fehler bei der Statsig-Initialisierung:', error);
-                throw error;
-              });
             // Event-Listener für den Browser-Button
             document
               .getElementById('checkBrowserButton')
               .addEventListener('click', async function () {
                 try {
-                  const browserGate = await statsig.checkGate(
-                    'browser_name_chrome'
-                  );
+                  const browserGate = await statsig.checkGate('browser_name_chrome');
                   console.log('Browser Gate Result:', browserGate);
-                  document.getElementById('browserResult').innerText =
-                    browserGate
-                      ? 'Herzlichen Glückwunsch! Du bist ein deutscher Benutzer, du kannst zuerst unsere Testversion ausprobieren!'
-                      : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
+                  document.getElementById('browserResult').innerText = browserGate
+                    ? 'Herzlichen Glückwunsch! Du bist ein deutscher Benutzer, du kannst zuerst unsere Testversion ausprobieren!'
+                    : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
                 } catch (gateError) {
-                  console.error(
-                    'Feature-Gate-Check für Browser fehlgeschlagen:',
-                    gateError
-                  );
+                  console.error('Feature-Gate-Check für Browser fehlgeschlagen:', gateError);
                 }
               });
 
@@ -84,15 +72,11 @@
                 try {
                   const countryGate = await statsig.checkGate('country_de');
                   console.log('Country Gate Result:', countryGate);
-                  document.getElementById('countryResult').innerText =
-                    countryGate
-                      ? 'Herzlichen Glückwunsch! Du bist ein deutscher Benutzer, du kannst zuerst unsere Testversion ausprobieren!'
-                      : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
+                  document.getElementById('countryResult').innerText = countryGate
+                    ? 'Herzlichen Glückwunsch! Du bist ein deutscher Benutzer, du kannst zuerst unsere Testversion ausprobieren!'
+                    : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
                 } catch (gateError) {
-                  console.error(
-                    'Feature-Gate-Check für Land fehlgeschlagen:',
-                    gateError
-                  );
+                  console.error('Feature-Gate-Check für Land fehlgeschlagen:', gateError);
                 }
               });
 
@@ -101,26 +85,20 @@
               .getElementById('checkEarlyBirdButton')
               .addEventListener('click', async function () {
                 try {
-                  const earlyBirdGate = await statsig.checkGate(
-                    'before_august_4'
-                  );
+                  const earlyBirdGate = await statsig.checkGate('before_august_4');
                   console.log('Early Bird Gate Result:', earlyBirdGate);
-                  document.getElementById('earlyBirdResult').innerText =
-                    earlyBirdGate
-                      ? 'Herzlichen Glückwunsch! Du bist ein Early Bird, du kannst zuerst unsere Testversion ausprobieren!'
-                      : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
+                  document.getElementById('earlyBirdResult').innerText = earlyBirdGate
+                    ? 'Herzlichen Glückwunsch! Du bist ein Early Bird, kannst zuerst unsere Testversion ausprobieren!'
+                    : 'Wie der Rest der Benutzer nutzt auch du unser offizielles Produkt.';
                 } catch (gateError) {
-                  console.error(
-                    'Feature-Gate-Check für Early Bird fehlgeschlagen:',
-                    gateError
-                  );
+                  console.error('Feature-Gate-Check für Early Bird fehlgeschlagen:', gateError);
                 }
               });
-          } catch (error) {
+          })
+          .catch((error) => {
             console.error('Statsig-Initialisierung fehlgeschlagen:', error);
-          }
-        };
-      });
+          });
+      };
     </script>
   </body>
 </html>
